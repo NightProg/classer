@@ -1,3 +1,4 @@
+pub mod instr;
 use crate::flags::Flags;
 
 #[derive(Debug, Clone, PartialEq, Default)]

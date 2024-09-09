@@ -1,7 +1,7 @@
 use crate::{
     bytecode::{
         AccessFlag, AttributeInfo, AttributeInfoKind, ClassFile, CpInfo, CpInfoType,
-        ExceptionTable, FieldInfo, MethodInfo,
+        ExceptionTable, FieldInfo, LineNumberTable, MethodInfo,
     },
     flags::Flags,
     reader::Reader,
@@ -189,6 +189,25 @@ impl Parser {
                         todo!()
                     }
                     "Exceptions" => todo!(),
+                    "LineNumberTable" => {
+                        let line_number_table_length = self.reader.read_int2();
+                        let mut line_number_table = vec![];
+                        for _ in 0..line_number_table_length {
+                            line_number_table.push(LineNumberTable {
+                                start_pc: self.reader.read_int2(),
+                                line_number: self.reader.read_int2(),
+                            });
+                        }
+                        attribute = AttributeInfoKind::LineNumberTable {
+                            line_number_table_length,
+                            line_number_table,
+                        };
+                    }
+                    "SourceFile" => {
+                        attribute = AttributeInfoKind::SourceFile {
+                            sourcefile_index: self.reader.read_int2(),
+                        };
+                    }
                     e => todo!("{}", e),
                 }
             } else {
