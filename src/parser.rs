@@ -152,6 +152,11 @@ impl Parser {
                 .info
             {
                 match bytes.as_str() {
+                    "ConstantValue" => {
+                        attribute = AttributeInfoKind::ConstantValue {
+                            constantvalue_index: self.reader.read_int2(),
+                        };
+                    }
                     "Code" => {
                         let max_stack = self.reader.read_int2();
                         let max_locals = self.reader.read_int2();
@@ -180,6 +185,10 @@ impl Parser {
                             attributes,
                         };
                     }
+                    "StackMapTable" => {
+                        todo!()
+                    }
+                    "Exceptions" => todo!(),
                     e => todo!("{}", e),
                 }
             } else {

@@ -141,6 +141,89 @@ pub enum AttributeInfoKind {
         local_variable_table_length: u16,
         local_variable_table: Vec<LocalVariableTable>,
     },
+    LocalVariableTypeTable {
+        local_variable_type_table_length: u16,
+        local_variable_type_table: Vec<LocalVariableTypeTable>,
+    },
+    Deprecated,
+    RuntimeVisibleAnnotations {
+        num_annotations: u16,
+        annotations: Vec<Annotation>,
+    },
+    RuntimeInvisibleAnnotations {
+        num_annotations: u16,
+        annotations: Vec<Annotation>,
+    },
+    RuntimeVisibleParameterAnnotations {
+        num_parameters: u8,
+        parameter_annotations: Vec<ParameterAnnotation>,
+    },
+    RuntimeInvisibleParameterAnnotations {
+        num_parameters: u8,
+        parameter_annotations: Vec<ParameterAnnotation>,
+    },
+    AnnotationDefault {
+        default_value: ElementValue,
+    },
+    BootstrapMethods {
+        num_bootstrap_methods: u16,
+        bootstrap_methods: Vec<BootstrapMethod>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BootstrapMethod {
+    pub bootstrap_method_ref: u16,
+    pub num_bootstrap_arguments: u16,
+    pub bootstrap_arguments: Vec<u16>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ParameterAnnotation {
+    pub num_annotations: u16,
+    pub annotations: Vec<Annotation>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Annotation {
+    pub type_index: u16,
+    pub num_element_value_pairs: u16,
+    pub element_value_pairs: Vec<ElementValuePair>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ElementValuePair {
+    pub element_name_index: u16,
+    pub value: ElementValue,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ElementValue {
+    pub tag: u8,
+    pub value: ElementValueKind,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ElementValueKind {
+    ConstValueIndex(u16),
+    EnumConstValue {
+        type_name_index: u16,
+        const_name_index: u16,
+    },
+    ClassInfoIndex(u16),
+    AnnotationValue(Annotation),
+    ArrayValue {
+        num_values: u16,
+        values: Vec<ElementValue>,
+    },
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct LocalVariableTypeTable {
+    pub start_pc: u16,
+    pub length: u16,
+    pub name_index: u16,
+    pub signature_index: u16,
+    pub index: u16,
 }
 
 #[derive(Debug, Clone, PartialEq)]
