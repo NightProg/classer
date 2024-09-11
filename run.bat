@@ -1,0 +1,1 @@
+C:\Users\antoinebarbier5\.cargo\bin\cargo.exe run

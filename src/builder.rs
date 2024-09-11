@@ -1,63 +1,242 @@
-use std::rc::Rc;
+use crate::{bytecode::{*, instr::*}, descriptor::Descriptor};
 
-use crate::bytecode::ClassFile;
-use crate::bytecode::CpInfo;
-use crate::bytecode::CpInfoType;
-use crate::bytecode::FieldInfo;
-use crate::descriptor::Descriptor;
+
+fn compute_byte(byte: u16) -> (u8, u8) {
+    (((byte >> 8) & 0xFF) as u8, (byte & 0xFF) as u8)
+}
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct ClassFileBuilder {
+pub struct Builder {
     class_file: ClassFile,
+    current_method: Option<u16>
 }
 
-impl ClassFileBuilder {
-    pub(crate) fn new(class_file: ClassFile) -> ClassFileBuilder {
-        ClassFileBuilder { class_file }
-    }
-
-    pub fn set_access_flags(&mut self, access_flags: u16) -> &mut Self {
-        self.class_file.access_flags = access_flags;
-        self
-    }
-
-    pub fn build(&self) -> &ClassFile {
-        &self.class_file
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct FieldInfoBuilder<'a> {
-    field_info: FieldInfo,
-    class_file: Rc<RefCell<ClassFile>>,
-}
-
-impl<'a> FieldInfoBuilder<'a> {
-    pub(crate) fn new(field_info: FieldInfo, class_file: &'a mut ClassFile) -> FieldInfoBuilder {
-        FieldInfoBuilder {
-            field_info,
-            class_file: Rc::new(class_file),
+impl Builder {
+    pub fn new() -> Self {
+        Builder {
+            class_file: ClassFile {
+                magic: JVM_MAGIC, 
+                minor_version: 0,
+                major_version: 52,
+                ..Default::default()
+            },
+            current_method: None
         }
     }
-    pub fn set_access_flags(&mut self, access_flags: u16) -> &mut Self {
-        self.field_info.access_flags = access_flags;
-        self
+
+    fn add_utf8(&mut self, string: &str) -> u16 {
+        let cp_info = CpInfo {
+            tag: 1,
+            info: CpInfoType::Utf8 { length: string.len() as u16, bytes: string.to_string() }
+        };
+        self.class_file.constant_pool.push(cp_info);
+        self.class_file.constant_pool_count += 1;
+        self.class_file.constant_pool_count as u16
     }
 
-    pub fn set_descriptor(&mut self, descriptor: Descriptor) -> &mut Self {
-        (*Rc::make_mut(self.class_file)).constant_pool_count += 1;
-        let serialized = descriptor.serialize();
-        (*Rc::make_mut(self.class_file)).constant_pool.push(CpInfo {
-            tag: 1,
-            info: CpInfoType::Utf8 {
-                length: serialized.len() as u16,
-                bytes: descriptor.serialize(),
-            },
+    fn add_descriptor(&mut self, descriptor: Descriptor) -> u16 {
+        self.add_utf8(&descriptor.serialize())
+    }
+
+    fn add_cp_info(&mut self, cp_info: CpInfo) -> u16 {
+        self.class_file.constant_pool.push(cp_info);
+        self.class_file.constant_pool_count += 1;
+        self.class_file.constant_pool_count as u16
+    }
+
+    pub fn load_class(&mut self, class_name: &str) -> u16 {
+        let name_index = self.add_utf8(class_name);
+        self.add_cp_info(
+            CpInfo { tag: CP_TAG_CLASS, info: CpInfoType::Class { name_index } }
+        )
+    }
+
+    pub fn load_field(&mut self, class: u16, name: &str, descriptor: Descriptor) -> u16 {
+        let name_index = self.add_utf8(name);
+        let descriptor_index = self.add_descriptor(descriptor);
+        let name_and_type_index = self.add_cp_info(
+            CpInfo { tag: CP_TAG_NAMEANDTYPE, info: CpInfoType::NameAndType { name_index, descriptor_index } }
+        );
+        self.add_cp_info(
+            CpInfo { tag: CP_TAG_FIELDREF, info: CpInfoType::Fieldref { class_index: class, name_and_type_index } }
+        )
+    }
+
+    pub fn load_method(&mut self, class: u16, name: &str, descriptor: Descriptor) -> u16 {
+        let name_index = self.add_utf8(name);
+        let descriptor_index = self.add_descriptor(descriptor);
+        let name_and_type_index = self.add_cp_info(
+            CpInfo { tag: CP_TAG_NAMEANDTYPE, info: CpInfoType::NameAndType { name_index, descriptor_index } }
+        );
+        self.add_cp_info(
+            CpInfo { tag: CP_TAG_METHODREF, info: CpInfoType::Methodref { class_index: class, name_and_type_index } }
+        )
+    }
+
+    pub fn load_string(&mut self, string: &str) -> u16 {
+        let utf8 = self.add_utf8(string);
+        self.add_cp_info(
+            CpInfo { tag: CP_TAG_STRING, info: CpInfoType::String { string_index: utf8 } }
+        )
+    }
+
+    pub fn set_super_class(&mut self, class: u16) {
+        self.class_file.super_class = class;
+    }
+
+    pub fn set_class_name(&mut self, name: &str) {
+        let name_index = self.add_utf8(name);
+        self.class_file.this_class = self.add_cp_info(CpInfo { tag: CP_TAG_CLASS, info: CpInfoType::Class { name_index } });
+    }
+
+    pub fn add_field(&mut self, name: &str, descriptor: Descriptor, access_flags: u16) -> u16 {
+        let name_index = self.add_utf8(name);
+        let descriptor_index = self.add_descriptor(descriptor);
+        self.class_file.fields.push(FieldInfo {
+            access_flags,
+            name_index,
+            descriptor_index,
+            attributes_count: 0,
+            attributes: vec![]
         });
-        self.field_info.descriptor_index = self.class_file.constant_pool_count;
-        self
+        let name_and_type_index = self.add_cp_info(
+            CpInfo { tag: CP_TAG_NAMEANDTYPE, info: CpInfoType::NameAndType { name_index, descriptor_index } }
+        );
+
+        self.add_cp_info(
+            CpInfo { tag: CP_TAG_FIELDREF, info: CpInfoType::Fieldref { class_index: self.class_file.this_class, name_and_type_index } }
+        )
     }
-    pub fn build(&self) -> &FieldInfo {
-        &self.field_info
+
+    pub fn add_method(&mut self, name: &str, descriptor: Descriptor, access_flags: u16) -> u16 {
+        let name_index = self.add_utf8(name);
+        let descriptor_index = self.add_descriptor(descriptor);
+        let code = self.add_utf8("Code");
+        self.class_file.method_info.push(MethodInfo {
+            access_flags,
+            name_index,
+            descriptor_index,
+            attributes_count: 0,
+            attributes: vec![
+                AttributeInfo {
+                    attribute_name_index: code,
+                    attribute_length: 0,
+                    info: AttributeInfoKind::Code {
+                        max_stack: 0,
+                        max_locals: 0,
+                        code_length: 0,
+                        code: vec![],
+                        exception_table_length: 0,
+                        exception_table: vec![],
+                        attributes_count: 0,
+                        attributes: vec![]
+                    }
+
+                }
+            ]
+        });
+        self.class_file.method_count += 1;
+        let name_and_type_index = self.add_cp_info(
+            CpInfo { tag: CP_TAG_NAMEANDTYPE, info: CpInfoType::NameAndType { name_index, descriptor_index } }
+        );
+
+        self.current_method = Some(self.class_file.method_count - 1);
+        self.add_cp_info(
+            CpInfo { tag: CP_TAG_METHODREF, info: CpInfoType::Methodref { class_index: self.class_file.this_class, name_and_type_index } }
+        )
     }
+
+    pub fn build_aload_n(&mut self, n: u8) {
+        if let Some(ind) = self.current_method {
+            let attr = &mut self.class_file.method_info[ind as usize].attributes[0].info;
+            if let AttributeInfoKind::Code { code, max_locals, .. } = attr {
+                if n as u16 >= *max_locals {
+                    *max_locals = n as u16 + 1;
+                }
+                code.push(Opcode::AloadN(n));
+            } else {
+                panic!("Invalid code attribute");
+            }
+        } else {
+            panic!("No method to build");
+        }
+    }
+
+    pub fn build_invoke_special(&mut self, method: u16) {
+        if let Some(ind) = self.current_method {
+            let code = &mut self.class_file.method_info[ind as usize].attributes[0].info;
+            if let AttributeInfoKind::Code { code, max_stack, .. } = code {
+                *max_stack += 1;
+                let (high, low) = compute_byte(method);
+                code.push(Opcode::Invokespecial(high, low));
+            } else {
+                panic!("Invalid code attribute");
+            }
+        } else {
+            panic!("No method to build");
+        }
+    }
+
+    pub fn build_invoke_virtual(&mut self, method: u16) {
+        if let Some(ind) = self.current_method {
+            let code = &mut self.class_file.method_info[ind as usize].attributes[0].info;
+            if let AttributeInfoKind::Code { code, max_stack, .. } = code {
+                *max_stack += 1;
+                let (high, low) = compute_byte(method);
+                code.push(Opcode::Invokevirtual(high, low));
+            } else {
+                panic!("Invalid code attribute");
+            }
+        } else {
+            panic!("No method to build");
+        }
+    }
+
+    pub fn build_getstatic(&mut self, field: u16) {
+        if let Some(ind) = self.current_method {
+            let code = &mut self.class_file.method_info[ind as usize].attributes[0].info;
+            if let AttributeInfoKind::Code { code, .. } = code {
+                let (high, low) = compute_byte(field);
+                code.push(Opcode::Getstatic(high, low));
+            } else {
+                panic!("Invalid code attribute");
+            }
+        } else {
+            panic!("No method to build");
+        }
+    }
+
+    pub fn build_ldc(&mut self, constant: u16) {
+        if let Some(ind) = self.current_method {
+            let code = &mut self.class_file.method_info[ind as usize].attributes[0].info;
+            if let AttributeInfoKind::Code { code, max_stack, .. } = code {
+                *max_stack += 1;
+                code.push(Opcode::Ldc(constant as u8));
+            } else {
+                panic!("Invalid code attribute");
+            }
+        } else {
+            panic!("No method to build");
+        }
+    }
+
+    pub fn build_return(&mut self) {
+        if let Some(ind) = self.current_method {
+            let attr = &mut self.class_file.method_info[ind as usize].attributes[0].info;
+            if let AttributeInfoKind::Code { code, .. } = attr {
+
+                code.push(Opcode::Return_);
+            } else {
+                panic!("Invalid code attribute");
+            }
+        } else {
+            panic!("No method to build");
+        }
+    }
+
+
+    pub fn build(&self) -> ClassFile {
+        self.class_file.clone()
+    }
+    
 }
