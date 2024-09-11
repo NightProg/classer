@@ -120,7 +120,7 @@ impl Parser {
         }
         class_file.method_count = self.reader.read_int2();
         for _ in 0..class_file.method_count {
-            let access_flags = Flags::new(self.reader.read_int2());
+            let access_flags = self.reader.read_int2();
             let name_index = self.reader.read_int2();
             let descriptor_index = self.reader.read_int2();
             let attributes_count = self.reader.read_int2();

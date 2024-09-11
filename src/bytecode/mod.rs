@@ -1,5 +1,7 @@
 pub mod instr;
 
+use std::default;
+
 use instr::Opcode;
 
 use crate::{builder::*, flags::Flags};
@@ -97,20 +99,15 @@ impl ToJvmBytecode for ClassFile {
     }
 }
 
-impl ClassFile {
-    pub fn builder<'a>() -> &'a mut ClassFileBuilder {
-        let class = ClassFileBuilder::new(ClassFile {
-            magic: JVM_MAGIC,
-            ..Default::default()
-        });
-        Box::leak(Box::new(class))
-    }
-
-    pub fn make_builder<'a>(&self) -> &'a mut ClassFileBuilder {
-        let class = ClassFileBuilder::new(self.clone());
-        Box::leak(Box::new(class))
-    }
-}
+pub const FIELD_ACC_PUBLIC: u16 = 0x0001;
+pub const FIELD_ACC_PRIVATE: u16 = 0x0002;
+pub const FIELD_ACC_PROTECTED: u16 = 0x0004;
+pub const FIELD_ACC_STATIC: u16 = 0x0008;
+pub const FIELD_ACC_FINAL: u16 = 0x0010;
+pub const FIELD_ACC_VOLATILE: u16 = 0x0040;
+pub const FIELD_ACC_TRANSIENT: u16 = 0x0080;
+pub const FIELD_ACC_SYNTHETIC: u16 = 0x1000;
+pub const FIELD_ACC_ENUM: u16 = 0x4000;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct FieldInfo {
@@ -140,12 +137,6 @@ impl ToJvmBytecode for FieldInfo {
     }
 }
 
-impl FieldInfo {
-    pub fn builder<'a>() -> &'a mut FieldInfoBuilder {
-        let field = FieldInfoBuilder::new(Default::default());
-        Box::leak(Box::new(field))
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AttributeInfo {
@@ -157,9 +148,10 @@ pub struct AttributeInfo {
 impl ToJvmBytecode for AttributeInfo {
     fn to_jvm_bytecode(&self) -> Vec<u8> {
         let mut bytes = vec![];
+        let b = self.info.to_jvm_bytecode();
         bytes.extend_from_slice(&self.attribute_name_index.to_be_bytes());
-        bytes.extend_from_slice(&self.attribute_length.to_be_bytes());
-        bytes.extend_from_slice(&self.info.to_jvm_bytecode());
+        bytes.extend_from_slice(&(b.len() as u32).to_be_bytes());
+        bytes.extend_from_slice(&b);
         bytes
     }
 }
@@ -258,22 +250,19 @@ impl ToJvmBytecode for AttributeInfoKind {
             AttributeInfoKind::Code {
                 max_stack,
                 max_locals,
-                code_length,
                 code,
                 exception_table_length,
                 exception_table,
                 attributes_count,
                 attributes,
+                ..
             } => {
+                let c = code.iter().map(|c| c.to_jvm_bytecode()).flatten().collect::<Vec<u8>>();
                 bytes.extend_from_slice(&max_stack.to_be_bytes());
                 bytes.extend_from_slice(&max_locals.to_be_bytes());
-                bytes.extend_from_slice(&code_length.to_be_bytes());
+                bytes.extend_from_slice(&(c.len() as u32).to_be_bytes());
                 bytes.extend_from_slice(
-                    &code
-                        .iter()
-                        .map(|c| c.to_jvm_bytecode())
-                        .flatten()
-                        .collect::<Vec<u8>>(),
+                    &c
                 );
                 bytes.extend_from_slice(&exception_table_length.to_be_bytes());
                 bytes.extend_from_slice(
@@ -852,9 +841,23 @@ impl ToJvmBytecode for ExceptionTable {
     }
 }
 
+pub const METHOD_ACC_PUBLIC: u16 = 0x0001;
+pub const METHOD_ACC_PRIVATE: u16 = 0x0002;
+pub const METHOD_ACC_PROTECTED: u16 = 0x0004;
+pub const METHOD_ACC_STATIC: u16 = 0x0008;
+pub const METHOD_ACC_FINAL: u16 = 0x0010;
+pub const METHOD_ACC_SYNCHRONIZED: u16 = 0x0020;
+pub const METHOD_ACC_BRIDGE: u16 = 0x0040;
+pub const METHOD_ACC_VARARGS: u16 = 0x0080;
+pub const METHOD_ACC_NATIVE: u16 = 0x0100;
+pub const METHOD_ACC_ABSTRACT: u16 = 0x0400;
+pub const METHOD_ACC_STRICT: u16 = 0x0800;
+pub const METHOD_ACC_SYNTHETIC: u16 = 0x1000;
+
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct MethodInfo {
-    pub access_flags: Flags<u16>,
+    pub access_flags: u16,
     pub name_index: u16,
     pub descriptor_index: u16,
     pub attributes_count: u16,
@@ -864,7 +867,7 @@ pub struct MethodInfo {
 impl ToJvmBytecode for MethodInfo {
     fn to_jvm_bytecode(&self) -> Vec<u8> {
         let mut bytes = vec![];
-        bytes.extend_from_slice(&self.access_flags.flags.to_be_bytes());
+        bytes.extend_from_slice(&self.access_flags.to_be_bytes());
         bytes.extend_from_slice(&self.name_index.to_be_bytes());
         bytes.extend_from_slice(&self.descriptor_index.to_be_bytes());
         bytes.extend_from_slice(&self.attributes_count.to_be_bytes());
@@ -879,6 +882,21 @@ impl ToJvmBytecode for MethodInfo {
         bytes
     }
 }
+
+pub const CP_TAG_UTF8: u8 = 1;
+pub const CP_TAG_INTEGER: u8 = 3;
+pub const CP_TAG_FLOAT: u8 = 4;
+pub const CP_TAG_LONG: u8 = 5;
+pub const CP_TAG_DOUBLE: u8 = 6;
+pub const CP_TAG_CLASS: u8 = 7;
+pub const CP_TAG_STRING: u8 = 8;
+pub const CP_TAG_FIELDREF: u8 = 9;
+pub const CP_TAG_METHODREF: u8 = 10;
+pub const CP_TAG_INTERFACEMETHODREF: u8 = 11;
+pub const CP_TAG_NAMEANDTYPE: u8 = 12;
+pub const CP_TAG_METHODHANDLE: u8 = 15;
+pub const CP_TAG_METHODTYPE: u8 = 16;
+pub const CP_TAG_INVOKEDYNAMIC: u8 = 18;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CpInfo {
