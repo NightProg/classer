@@ -1,5 +1,3 @@
-use crate::bytecode::AccessFlag;
-
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Flags<T>
 where
@@ -28,20 +26,5 @@ where
             .into_iter()
             .filter(|flag| self.is_set(flag.clone()))
             .collect()
-    }
-}
-
-impl Flags<AccessFlag> {
-    pub fn get_access_flags(&self) -> Vec<AccessFlag> {
-        self.get_all_flags(vec![
-            AccessFlag::Public,
-            AccessFlag::Final,
-            AccessFlag::Super,
-            AccessFlag::Interface,
-            AccessFlag::Abstract,
-            AccessFlag::Synthetic,
-            AccessFlag::Annotation,
-            AccessFlag::Enum,
-        ])
     }
 }

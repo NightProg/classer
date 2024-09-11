@@ -1,6 +1,6 @@
 use crate::{
     bytecode::{
-        AccessFlag, AttributeInfo, AttributeInfoKind, ClassFile, CpInfo, CpInfoType,
+        instr::Opcode, AttributeInfo, AttributeInfoKind, ClassFile, CpInfo, CpInfoType,
         ExceptionTable, FieldInfo, LineNumberTable, MethodInfo,
     },
     flags::Flags,
@@ -96,7 +96,7 @@ impl Parser {
                 e => todo!("{:?} {}", class_file, e),
             }
         }
-        class_file.access_flags = Flags::new(self.reader.read_int2());
+        class_file.access_flags = self.reader.read_int2();
         class_file.this_class = self.reader.read_int2();
         class_file.super_class = self.reader.read_int2();
         class_file.interfaces_count = self.reader.read_int2();
@@ -105,7 +105,7 @@ impl Parser {
         }
         class_file.fields_count = self.reader.read_int2();
         for _ in 0..class_file.fields_count {
-            let access_flags = Flags::new(self.reader.read_int2());
+            let access_flags = self.reader.read_int2();
             let name_index = self.reader.read_int2();
             let descriptor_index = self.reader.read_int2();
             let attributes_count = self.reader.read_int2();
@@ -136,7 +136,7 @@ impl Parser {
 
         class_file.attributes_count = self.reader.read_int2();
         class_file.attributes = self.parse_attribute(&class_file, class_file.attributes_count);
-
+        println!("{:?}", self.reader.is_at_end());
         class_file
     }
 
@@ -174,6 +174,13 @@ impl Parser {
                         }
                         let attributes_count = self.reader.read_int2();
                         let attributes = self.parse_attribute(class, attributes_count);
+                        let mut reader = Reader::new(code);
+                        let mut other_reader = reader.clone();
+                        println!("{}", other_reader.read_int1());
+                        let mut code = vec![];
+                        while !reader.is_at_end() {
+                            code.push(Opcode::from_reader(&mut reader).unwrap());
+                        }
                         attribute = AttributeInfoKind::Code {
                             max_stack,
                             max_locals,

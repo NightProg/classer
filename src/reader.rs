@@ -48,4 +48,8 @@ impl Reader {
     pub fn read(&self) -> Vec<u8> {
         self.data.clone()
     }
+
+    pub fn is_at_end(&self) -> bool {
+        self.cursor >= self.data.len()
+    }
 }

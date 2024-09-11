@@ -1,0 +1,358 @@
+const AALOAD: u8 = 0x32;
+const AASTORE: u8 = 0x53;
+const ACONST_NULL: u8 = 0x1;
+const ALOAD: u8 = 0x19;
+fn aloadN(index: u8) -> u8 {
+        return 0x2a + index;
+}
+        
+const ANEWARRAY: u8 = 0xbd;
+const ARETURN: u8 = 0xb0;
+const ARRAYLENGTH: u8 = 0xbe;
+const ASTORE: u8 = 0x3a;
+fn astoreN(index: u8) -> u8 {
+        return 0x4b + index;
+}
+        
+const ATHROW: u8 = 0xbf;
+const BALOAD: u8 = 0x33;
+const BASTORE: u8 = 0x54;
+const BIPUSH: u8 = 0x10;
+const CALOAD: u8 = 0x34;
+const CASTORE: u8 = 0x55;
+const CHECKCAST: u8 = 0xc0;
+const D2F: u8 = 0x90;
+const D2I: u8 = 0x8e;
+const D2L: u8 = 0x8f;
+const DADD: u8 = 0x63;
+const DALOAD: u8 = 0x31;
+const DASTORE: u8 = 0x52;
+fn dcmN(index: u8) -> u8 {
+        return 0x98 + index;
+}
+        
+fn dconstN(index: u8) -> u8 {
+        return 0xe + index;
+}
+        
+const DDIV: u8 = 0x6f;
+const DLOAD: u8 = 0x18;
+fn dloadN(index: u8) -> u8 {
+        return 0x26 + index;
+}
+        
+const DMUL: u8 = 0x6b;
+const DNEG: u8 = 0x77;
+const DREM: u8 = 0x73;
+const DRETURN: u8 = 0xaf;
+const DSTORE: u8 = 0x39;
+fn dstoreN(index: u8) -> u8 {
+        return 0x47 + index;
+}
+        
+const DSUB: u8 = 0x67;
+const DUP: u8 = 0x59;
+const DUP_X1: u8 = 0x5a;
+const DUP_X2: u8 = 0x5b;
+const DUP2: u8 = 0x5c;
+const DUP2_X1: u8 = 0x5d;
+const DUP2_X2: u8 = 0x5e;
+const F2D: u8 = 0x8d;
+const F2I: u8 = 0x8b;
+const F2L: u8 = 0x8c;
+const FADD: u8 = 0x62;
+const FALOAD: u8 = 0x30;
+const FASTORE: u8 = 0x51;
+fn fcmN(index: u8) -> u8 {
+        return 0x96 + index;
+}
+        
+fn fconstN(index: u8) -> u8 {
+        return 0xb + index;
+}
+        
+const FDIV: u8 = 0x6e;
+const FLOAD: u8 = 0x17;
+fn floadN(index: u8) -> u8 {
+        return 0x22 + index;
+}
+        
+const FMUL: u8 = 0x6a;
+const FNEG: u8 = 0x76;
+const FREM: u8 = 0x72;
+const FRETURN: u8 = 0xae;
+const FSTORE: u8 = 0x38;
+fn fstoreN(index: u8) -> u8 {
+        return 0x43 + index;
+}
+        
+const FSUB: u8 = 0x66;
+const GETFIELD: u8 = 0xb4;
+const GETSTATIC: u8 = 0xb2;
+const GOTO: u8 = 0xa7;
+const GOTO_W: u8 = 0xc8;
+const I2B: u8 = 0x91;
+const I2C: u8 = 0x92;
+const I2D: u8 = 0x87;
+const I2F: u8 = 0x86;
+const I2L: u8 = 0x85;
+const I2S: u8 = 0x93;
+const IADD: u8 = 0x60;
+const IALOAD: u8 = 0x2e;
+const IAND: u8 = 0x7e;
+const IASTORE: u8 = 0x4f;
+fn iconstN(index: u8) -> u8 {
+        return 0x2 + index;
+}
+        
+const IDIV: u8 = 0x6c;
+fn if_acmN(index: u8) -> u8 {
+        return 0xa5 + index;
+}
+        
+fn if_icmN(index: u8) -> u8 {
+        return 0x9f + index;
+}
+        
+fn iN(index: u8) -> u8 {
+        return 0x99 + index;
+}
+        
+const IFNONNULL: u8 = 0xc7;
+const IFNULL: u8 = 0xc6;
+const IINC: u8 = 0x84;
+const ILOAD: u8 = 0x15;
+fn iloadN(index: u8) -> u8 {
+        return 0x1a + index;
+}
+        
+const IMUL: u8 = 0x68;
+const INEG: u8 = 0x74;
+const INSTANCEOF: u8 = 0xc1;
+const INVOKEDYNAMIC: u8 = 0xba;
+const INVOKEINTERFACE: u8 = 0xb9;
+const INVOKESPECIAL: u8 = 0xb7;
+const INVOKESTATIC: u8 = 0xb8;
+const INVOKEVIRTUAL: u8 = 0xb6;
+const IOR: u8 = 0x80;
+const IREM: u8 = 0x70;
+const IRETURN: u8 = 0xac;
+const ISHL: u8 = 0x78;
+const ISHR: u8 = 0x7a;
+const ISTORE: u8 = 0x36;
+fn istoreN(index: u8) -> u8 {
+        return 0x3b + index;
+}
+        
+const ISUB: u8 = 0x64;
+const IUSHR: u8 = 0x7c;
+const IXOR: u8 = 0x82;
+const JSR: u8 = 0xa8;
+const JSR_W: u8 = 0xc9;
+const L2D: u8 = 0x8a;
+const L2F: u8 = 0x89;
+const L2I: u8 = 0x88;
+const LADD: u8 = 0x61;
+const LALOAD: u8 = 0x2f;
+const LAND: u8 = 0x7f;
+const LASTORE: u8 = 0x50;
+const LCMP: u8 = 0x94;
+fn lconstN(index: u8) -> u8 {
+        return 0x9 + index;
+}
+        
+const LDC: u8 = 0x12;
+const LDC_W: u8 = 0x13;
+const LDC2_W: u8 = 0x14;
+const LDIV: u8 = 0x6d;
+const LLOAD: u8 = 0x16;
+fn lloadN(index: u8) -> u8 {
+        return 0x1e + index;
+}
+        
+const LMUL: u8 = 0x69;
+const LNEG: u8 = 0x75;
+const LOOKUPSWITCH: u8 = 0xab;
+const LOR: u8 = 0x81;
+const LREM: u8 = 0x71;
+const LRETURN: u8 = 0xad;
+const LSHL: u8 = 0x79;
+const LSHR: u8 = 0x7b;
+const LSTORE: u8 = 0x37;
+fn lstoreN(index: u8) -> u8 {
+        return 0x3f + index;
+}
+        
+const LSUB: u8 = 0x65;
+const LUSHR: u8 = 0x7d;
+const LXOR: u8 = 0x83;
+const MONITORENTER: u8 = 0xc2;
+const MONITOREXIT: u8 = 0xc3;
+const MULTIANEWARRAY: u8 = 0xc5;
+const NEW: u8 = 0xbb;
+const NEWARRAY: u8 = 0xbc;
+const NOP: u8 = 0x0;
+const POP: u8 = 0x57;
+const POP2: u8 = 0x58;
+const PUTFIELD: u8 = 0xb5;
+const PUTSTATIC: u8 = 0xb3;
+const RET: u8 = 0xa9;
+const RETURN: u8 = 0xb1;
+const SALOAD: u8 = 0x35;
+const SASTORE: u8 = 0x56;
+const SIPUSH: u8 = 0x11;
+const SWAP: u8 = 0x5f;
+const TABLESWITCH: u8 = 0xaa;
+pub enum Opcode {
+	mnemonic(u8, u8, u8), // mnemonic operand1 operand2 
+                        ...
+	aaload, // aaload
+	aastore, // aastore
+	aconst_null, // aconst_null
+	aload(u8), // aload index
+	aloadN, // aload_<n>
+	anewarray(u8, u8), // anewarray indexbyte1 indexbyte2
+	areturn, // areturn
+	arraylength, // arraylength
+	astore(u8), // astore index
+	astoreN, // astore_<n>
+	athrow, // athrow
+	baload, // baload
+	bastore, // bastore
+	bipush(u8), // bipush byte
+	caload, // caload
+	castore, // castore
+	checkcast(u8, u8), // checkcast indexbyte1 indexbyte2
+	d2f, // d2f
+	d2i, // d2i
+	d2l, // d2l
+	dadd, // dadd
+	daload, // daload
+	dastore, // dastore
+	dcmOP, // dcmp<op>
+	dconstD, // dconst_<d>
+	ddiv, // ddiv
+	dload(u8), // dload index
+	dloadN, // dload_<n>
+	dmul, // dmul
+	dneg, // dneg
+	drem, // drem
+	dreturn, // dreturn
+	dstore(u8), // dstore index
+	dstoreN, // dstore_<n>
+	dsub, // dsub
+	dup, // dup
+	dup_x1, // dup_x1
+	dup_x2, // dup_x2
+	dup2, // dup2
+	dup2_x1, // dup2_x1
+	dup2_x2, // dup2_x2
+	f2d, // f2d
+	f2i, // f2i
+	f2l, // f2l
+	fadd, // fadd
+	faload, // faload
+	fastore, // fastore
+	fcmOP, // fcmp<op>
+	fconstF, // fconst_<f>
+	fdiv, // fdiv
+	fload(u8), // fload index
+	floadN, // fload_<n>
+	fmul, // fmul
+	fneg, // fneg
+	frem, // frem
+	freturn, // freturn
+	fstore(u8), // fstore index
+	fstoreN, // fstore_<n>
+	fsub, // fsub
+	getfield(u8, u8), // getfield indexbyte1 indexbyte2
+	getstatic(u8, u8), // getstatic indexbyte1 indexbyte2
+	goto(u8, u8), // goto branchbyte1 branchbyte2
+	goto_w(u8, u8, u8, u8), // goto_w branchbyte1 branchbyte2 branchbyte3 branchbyte4
+	i2b, // i2b
+	i2c, // i2c
+	i2d, // i2d
+	i2f, // i2f
+	i2l, // i2l
+	i2s, // i2s
+	iadd, // iadd
+	iaload, // iaload
+	iand, // iand
+	iastore, // iastore
+	iconstI, // iconst_<i>
+	idiv, // idiv
+	if_acmCOND(u8, u8), // if_acmp<cond> branchbyte1 branchbyte2
+	if_icmCOND(u8, u8), // if_icmp<cond> branchbyte1 branchbyte2
+	iCOND(u8, u8), // if<cond> branchbyte1 branchbyte2
+	ifnonnull(u8, u8), // ifnonnull branchbyte1 branchbyte2
+	ifnull(u8, u8), // ifnull branchbyte1 branchbyte2
+	iinc(u8, u8), // iinc index const
+	iload(u8), // iload index
+	iloadN, // iload_<n>
+	imul, // imul
+	ineg, // ineg
+	instanceof(u8, u8), // instanceof indexbyte1 indexbyte2
+	invokedynamic(u8, u8, u8, u8), // invokedynamic indexbyte1 indexbyte2 0 0
+	invokeinterface(u8, u8, u8, u8), // invokeinterface indexbyte1 indexbyte2 count 0
+	invokespecial(u8, u8), // invokespecial indexbyte1 indexbyte2
+	invokestatic(u8, u8), // invokestatic indexbyte1 indexbyte2
+	invokevirtual(u8, u8), // invokevirtual indexbyte1 indexbyte2
+	ior, // ior
+	irem, // irem
+	ireturn, // ireturn
+	ishl, // ishl
+	ishr, // ishr
+	istore(u8), // istore index
+	istoreN, // istore_<n>
+	isub, // isub
+	iushr, // iushr
+	ixor, // ixor
+	jsr(u8, u8), // jsr branchbyte1 branchbyte2
+	jsr_w(u8, u8, u8, u8), // jsr_w branchbyte1 branchbyte2 branchbyte3 branchbyte4
+	l2d, // l2d
+	l2f, // l2f
+	l2i, // l2i
+	ladd, // ladd
+	laload, // laload
+	land, // land
+	lastore, // lastore
+	lcmp, // lcmp
+	lconstL, // lconst_<l>
+	ldc(u8), // ldc index
+	ldc_w(u8, u8), // ldc_w indexbyte1 indexbyte2
+	ldc2_w(u8, u8), // ldc2_w indexbyte1 indexbyte2
+	ldiv, // ldiv
+	lload(u8), // lload index
+	lloadN, // lload_<n>
+	lmul, // lmul
+	lneg, // lneg
+	lookupswitch(u8, u8, u8, u8, u8, u8, u8, u8, u8, u8), // lookupswitch <0-3 byte pad> defaultbyte1 defaultbyte2 defaultbyte3 defaultbyte4 npairs1 npairs2 npairs3 npairs4 match-offset pairs...
+	lor, // lor
+	lrem, // lrem
+	lreturn, // lreturn
+	lshl, // lshl
+	lshr, // lshr
+	lstore(u8), // lstore index
+	lstoreN, // lstore_<n>
+	lsub, // lsub
+	lushr, // lushr
+	lxor, // lxor
+	monitorenter, // monitorenter
+	monitorexit, // monitorexit
+	multianewarray(u8, u8, u8), // multianewarray indexbyte1 indexbyte2 dimensions
+	new(u8, u8), // new indexbyte1 indexbyte2
+	newarray(u8), // newarray atype
+	nop, // nop
+	pop, // pop
+	pop2, // pop2
+	putfield(u8, u8), // putfield indexbyte1 indexbyte2
+	putstatic(u8, u8), // putstatic indexbyte1 indexbyte2
+	ret(u8), // ret index
+	return, // return
+	saload, // saload
+	sastore, // sastore
+	sipush(u8, u8), // sipush byte1 byte2
+	swap, // swap
+	tableswitch(u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8), // tableswitch <0-3 byte pad> defaultbyte1 defaultbyte2 defaultbyte3 defaultbyte4 lowbyte1 lowbyte2 lowbyte3 lowbyte4 highbyte1 highbyte2 highbyte3 highbyte4 jump offsets...
+}
+
