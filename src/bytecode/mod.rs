@@ -47,13 +47,13 @@ impl ToJvmBytecode for ClassFile {
         bytes.extend_from_slice(&self.magic.to_be_bytes());
         bytes.extend_from_slice(&self.minor_version.to_be_bytes());
         bytes.extend_from_slice(&self.major_version.to_be_bytes());
-        bytes.extend_from_slice(&self.constant_pool_count.to_be_bytes());
+        bytes.extend_from_slice(&(self.constant_pool_count + 1).to_be_bytes());
+
         bytes.extend_from_slice(
             &self
                 .constant_pool
                 .iter()
-                .map(|cp| cp.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|cp| cp.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes.extend_from_slice(&self.access_flags.to_be_bytes());
@@ -137,7 +137,6 @@ impl ToJvmBytecode for FieldInfo {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct AttributeInfo {
     pub attribute_name_index: u16,
@@ -149,8 +148,9 @@ impl ToJvmBytecode for AttributeInfo {
     fn to_jvm_bytecode(&self) -> Vec<u8> {
         let mut bytes = vec![];
         let b = self.info.to_jvm_bytecode();
+        let length = b.len() as u32;
         bytes.extend_from_slice(&self.attribute_name_index.to_be_bytes());
-        bytes.extend_from_slice(&(b.len() as u32).to_be_bytes());
+        bytes.extend_from_slice(&length.to_be_bytes());
         bytes.extend_from_slice(&b);
         bytes
     }
@@ -257,13 +257,15 @@ impl ToJvmBytecode for AttributeInfoKind {
                 attributes,
                 ..
             } => {
-                let c = code.iter().map(|c| c.to_jvm_bytecode()).flatten().collect::<Vec<u8>>();
+                let c = code
+                    .iter()
+                    .map(|c| c.to_jvm_bytecode())
+                    .flatten()
+                    .collect::<Vec<u8>>();
                 bytes.extend_from_slice(&max_stack.to_be_bytes());
                 bytes.extend_from_slice(&max_locals.to_be_bytes());
                 bytes.extend_from_slice(&(c.len() as u32).to_be_bytes());
-                bytes.extend_from_slice(
-                    &c
-                );
+                bytes.extend_from_slice(&c);
                 bytes.extend_from_slice(&exception_table_length.to_be_bytes());
                 bytes.extend_from_slice(
                     &exception_table
@@ -854,7 +856,6 @@ pub const METHOD_ACC_ABSTRACT: u16 = 0x0400;
 pub const METHOD_ACC_STRICT: u16 = 0x0800;
 pub const METHOD_ACC_SYNTHETIC: u16 = 0x1000;
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct MethodInfo {
     pub access_flags: u16,
@@ -875,8 +876,7 @@ impl ToJvmBytecode for MethodInfo {
             &self
                 .attributes
                 .iter()
-                .map(|a| a.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|a| a.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes

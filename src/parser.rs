@@ -47,7 +47,7 @@ impl Parser {
             constant_pool_count,
             ..Default::default()
         };
-        for _ in 1..constant_pool_count {
+        for _ in 0..constant_pool_count - 1 {
             let tag = self.reader.read_int1();
             match tag {
                 CONSTANT_CLASS => class_file.constant_pool.push(CpInfo {
@@ -93,6 +93,12 @@ impl Parser {
                         string_index: self.reader.read_int2(),
                     },
                 }),
+                CONSTANT_INTEGER => class_file.constant_pool.push(CpInfo {
+                    tag,
+                    info: CpInfoType::Integer {
+                        bytes: self.reader.read_int4(),
+                    },
+                }),
                 e => todo!("{:?} {}", class_file, e),
             }
         }
@@ -136,7 +142,6 @@ impl Parser {
 
         class_file.attributes_count = self.reader.read_int2();
         class_file.attributes = self.parse_attribute(&class_file, class_file.attributes_count);
-        println!("{:?}", self.reader.is_at_end());
         class_file
     }
 
@@ -175,8 +180,6 @@ impl Parser {
                         let attributes_count = self.reader.read_int2();
                         let attributes = self.parse_attribute(class, attributes_count);
                         let mut reader = Reader::new(code);
-                        let mut other_reader = reader.clone();
-                        println!("{}", other_reader.read_int1());
                         let mut code = vec![];
                         while !reader.is_at_end() {
                             code.push(Opcode::from_reader(&mut reader).unwrap());
