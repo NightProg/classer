@@ -21,7 +21,7 @@ fn main() {
 use classer::parser::Parser;
 
 fn main() {
-    let class_file = Parser::new().parse("Hello.class");
+    let class_file = Parser::new("HelloWorld.class").parse();
     class_file.write("HelloWorld.class");
 }
 ```
