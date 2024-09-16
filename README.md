@@ -1,22 +1,25 @@
-# Just - A Rust JVM tool
+# classer - A Rust JVM tool
+
 This is a crate for manipulating Java class files.
 
 ## Example
 
 ### Read a class file
-```rust 
-use just::parser::Parser;
+
+```rust
+use classer::parser::Parser;
 
 fn main() {
-    let class_file: just::bytecode::ClassFile = Parser::new("HelloWorld.class").parse();
+    let class_file: classer::bytecode::ClassFile = Parser::new("HelloWorld.class").parse();
     println!("{:?}", class_file);
 }
 ```
 
 ### Write a class file
+
 ```rust
-use just::bytecode::ClassFile;
-use just::parser::Parser;
+use classer::bytecode::ClassFile;
+use classer::parser::Parser;
 
 fn main() {
     let class_file = Parser::new().parse("Hello.class")
@@ -25,10 +28,11 @@ fn main() {
 ```
 
 ### Generate a class file
+
 ```rust
-use just::builder::Builder;
-use just::descriptor::Descriptor;
-use just::bytecode::*;
+use classer::builder::Builder;
+use classer::descriptor::Descriptor;
+use classer::bytecode::*;
 
 fn main() {
     let mut builder = Builder::new();
@@ -70,6 +74,7 @@ fn main() {
     class_file.write("HelloWorld.class");
 }
 ```
+
 ```bash
 java HelloWorld # will print Hello, World
 ```

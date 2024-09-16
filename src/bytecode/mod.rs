@@ -60,8 +60,7 @@ impl ToJvmBytecode for ClassFile {
             &self
                 .interfaces
                 .iter()
-                .map(|i| i.to_be_bytes())
-                .flatten()
+                .flat_map(|i| i.to_be_bytes())
                 .collect::<Vec<u8>>(),
         );
         bytes.extend_from_slice(&self.fields_count.to_be_bytes());
@@ -69,8 +68,7 @@ impl ToJvmBytecode for ClassFile {
             &self
                 .fields
                 .iter()
-                .map(|f| f.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|f| f.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes.extend_from_slice(&self.method_count.to_be_bytes());
@@ -78,8 +76,7 @@ impl ToJvmBytecode for ClassFile {
             &self
                 .method_info
                 .iter()
-                .map(|m| m.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|m| m.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes.extend_from_slice(&self.attributes_count.to_be_bytes());
@@ -87,11 +84,17 @@ impl ToJvmBytecode for ClassFile {
             &self
                 .attributes
                 .iter()
-                .map(|a| a.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|a| a.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes
+    }
+}
+
+impl ClassFile {
+    pub fn write(&self, path: &str) -> std::io::Result<()> {
+        std::fs::write(path, self.to_jvm_bytecode())?;
+        Ok(())
     }
 }
 
@@ -125,8 +128,7 @@ impl ToJvmBytecode for FieldInfo {
             &self
                 .attributes
                 .iter()
-                .map(|a| a.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|a| a.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes
@@ -255,8 +257,7 @@ impl ToJvmBytecode for AttributeInfoKind {
             } => {
                 let c = code
                     .iter()
-                    .map(|c| c.to_jvm_bytecode())
-                    .flatten()
+                    .flat_map(|c| c.to_jvm_bytecode())
                     .collect::<Vec<u8>>();
                 bytes.extend_from_slice(&max_stack.to_be_bytes());
                 bytes.extend_from_slice(&max_locals.to_be_bytes());
@@ -266,16 +267,14 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &exception_table
                         .iter()
-                        .map(|e| e.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|e| e.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
                 bytes.extend_from_slice(&attributes_count.to_be_bytes());
                 bytes.extend_from_slice(
                     &attributes
                         .iter()
-                        .map(|a| a.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|a| a.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -287,8 +286,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &entries
                         .iter()
-                        .map(|e| e.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|e| e.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -300,8 +298,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &exception_index_table
                         .iter()
-                        .map(|e| e.to_be_bytes())
-                        .flatten()
+                        .flat_map(|e| e.to_be_bytes())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -313,8 +310,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &classes
                         .iter()
-                        .map(|c| c.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|c| c.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -339,7 +335,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(&sourcefile_index.to_be_bytes());
             }
             AttributeInfoKind::SourceDebugExtension { debug_extension } => {
-                bytes.extend_from_slice(&debug_extension);
+                bytes.extend_from_slice(debug_extension);
             }
             AttributeInfoKind::LineNumberTable {
                 line_number_table_length,
@@ -349,8 +345,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &line_number_table
                         .iter()
-                        .map(|l| l.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|l| l.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -362,8 +357,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &local_variable_table
                         .iter()
-                        .map(|l| l.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|l| l.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -375,8 +369,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &local_variable_type_table
                         .iter()
-                        .map(|l| l.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|l| l.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -389,8 +382,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &annotations
                         .iter()
-                        .map(|a| a.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|a| a.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -402,8 +394,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &annotations
                         .iter()
-                        .map(|a| a.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|a| a.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -415,8 +406,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &parameter_annotations
                         .iter()
-                        .map(|p| p.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|p| p.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -428,8 +418,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &parameter_annotations
                         .iter()
-                        .map(|p| p.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|p| p.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -444,8 +433,7 @@ impl ToJvmBytecode for AttributeInfoKind {
                 bytes.extend_from_slice(
                     &bootstrap_methods
                         .iter()
-                        .map(|b| b.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|b| b.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -470,8 +458,7 @@ impl ToJvmBytecode for BootstrapMethod {
             &self
                 .bootstrap_arguments
                 .iter()
-                .map(|a| a.to_be_bytes())
-                .flatten()
+                .flat_map(|a| a.to_be_bytes())
                 .collect::<Vec<u8>>(),
         );
         bytes
@@ -492,8 +479,7 @@ impl ToJvmBytecode for ParameterAnnotation {
             &self
                 .annotations
                 .iter()
-                .map(|a| a.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|a| a.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes
@@ -516,8 +502,7 @@ impl ToJvmBytecode for Annotation {
             &self
                 .element_value_pairs
                 .iter()
-                .map(|e| e.to_jvm_bytecode())
-                .flatten()
+                .flat_map(|e| e.to_jvm_bytecode())
                 .collect::<Vec<u8>>(),
         );
         bytes
@@ -588,8 +573,7 @@ impl ToJvmBytecode for ElementValueKind {
                 bytes.extend_from_slice(
                     &values
                         .iter()
-                        .map(|v| v.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|v| v.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -750,8 +734,7 @@ impl ToJvmBytecode for StackMapFrame {
                 bytes.extend_from_slice(
                     &locals
                         .iter()
-                        .map(|l| l.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|l| l.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }
@@ -766,15 +749,13 @@ impl ToJvmBytecode for StackMapFrame {
                 bytes.extend_from_slice(
                     &locals
                         .iter()
-                        .map(|l| l.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|l| l.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
                 bytes.extend_from_slice(
                     &stack
                         .iter()
-                        .map(|s| s.to_jvm_bytecode())
-                        .flatten()
+                        .flat_map(|s| s.to_jvm_bytecode())
                         .collect::<Vec<u8>>(),
                 );
             }

@@ -1,6 +1,10 @@
 [package]
-name = "just"
+name = "classer"
 version = "0.1.0"
 edition = "2021"
+description = "A JVM Class File Parser and generator for Rust"
+license = "MIT"
+repository = "https://github.com/NightProg/just"
+readme = "README.md"
 
 [dependencies]

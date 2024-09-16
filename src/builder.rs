@@ -13,6 +13,12 @@ pub struct Builder {
     current_method: Option<u16>,
 }
 
+impl Default for Builder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Builder {
     pub fn new() -> Self {
         Builder {
