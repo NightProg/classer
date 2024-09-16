@@ -18,11 +18,10 @@ fn main() {
 ### Write a class file
 
 ```rust
-use classer::bytecode::ClassFile;
 use classer::parser::Parser;
 
 fn main() {
-    let class_file = Parser::new().parse("Hello.class")
+    let class_file = Parser::new().parse("Hello.class");
     class_file.write("HelloWorld.class");
 }
 ```
@@ -77,6 +76,6 @@ fn main() {
 
 ```bash
 java HelloWorld # will print Hello, World
-```
+
 
 ```
