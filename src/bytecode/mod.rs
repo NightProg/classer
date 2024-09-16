@@ -1,10 +1,6 @@
 pub mod instr;
 
-use std::default;
-
 use instr::Opcode;
-
-use crate::{builder::*, flags::Flags};
 
 pub const PUBLIC: u16 = 0x0001;
 pub const FINAL: u16 = 0x0010;
@@ -663,7 +659,7 @@ pub struct InnerClass {
     pub inner_class_info_index: u16,
     pub outer_class_info_index: u16,
     pub inner_name_index: u16,
-    pub inner_class_access_flags: Flags<u16>,
+    pub inner_class_access_flags: u16,
 }
 
 impl ToJvmBytecode for InnerClass {
@@ -672,7 +668,7 @@ impl ToJvmBytecode for InnerClass {
         bytes.extend_from_slice(&self.inner_class_info_index.to_be_bytes());
         bytes.extend_from_slice(&self.outer_class_info_index.to_be_bytes());
         bytes.extend_from_slice(&self.inner_name_index.to_be_bytes());
-        bytes.extend_from_slice(&self.inner_class_access_flags.flags.to_be_bytes());
+        bytes.extend_from_slice(&self.inner_class_access_flags.to_be_bytes());
         bytes
     }
 }

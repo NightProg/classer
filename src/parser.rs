@@ -3,7 +3,6 @@ use crate::{
         instr::Opcode, AttributeInfo, AttributeInfoKind, ClassFile, CpInfo, CpInfoType,
         ExceptionTable, FieldInfo, LineNumberTable, MethodInfo,
     },
-    flags::Flags,
     reader::Reader,
 };
 

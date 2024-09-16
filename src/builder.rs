@@ -287,8 +287,8 @@ impl Builder {
             let attr = &mut self.class_file.method_info[ind as usize].attributes[0].info;
             if let AttributeInfoKind::Code {
                 code,
-                max_stack,
-                max_locals,
+                
+                
                 ..
             } = attr
             {
